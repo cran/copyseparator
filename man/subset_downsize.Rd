@@ -23,7 +23,7 @@ Subdivides the imported read alignment into subsets and then downsizes each subs
 }
 \examples{
 \dontrun{
-subset_downsize("inst/extdata/toydata.fasta", 300,225,1)
+subset_downsize("inst/extdata/toydata.fasta",300,225,1)
 }
 
 }

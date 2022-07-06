@@ -17,14 +17,14 @@
 #' @importFrom stringr str_count str_sort
 #'
 #' @importFrom beepr beep
-#' 
-#' @examples 
+#'
+#' @examples
 #' \dontrun{
-#' subset_downsize("inst/extdata/toydata.fasta", 300,225,1)
+#' subset_downsize("inst/extdata/toydata.fasta",300,225,1)
 #' }
 #'
 #' @export subset_downsize
-#' 
+#'
 
 subset_downsize<-function(filename,read_length,overlap, verbose=1)
 {

@@ -32,9 +32,12 @@
 #' @export copy_detect
 #'
 
-copy_detect<-function(filename,copy_number, verbose=1)
+copy_detect<-function(filename, copy_number, verbose=1)
 {
-  sink("log.txt", append=FALSE, split=TRUE) # begin to record log
+  
+  filename_short <- gsub("[:.:].*","", filename)
+  
+  sink(paste0(filename_short, "_log.txt"), append=FALSE, split=TRUE) # begin to record log
   error_log_function <- function() {
     cat(geterrmessage(), file="Error_log.txt", append=T)
   }
@@ -43,8 +46,6 @@ copy_detect<-function(filename,copy_number, verbose=1)
 
     Sub_set <- ape::as.character.DNAbin(ape::read.FASTA(file=filename, type = "DNA"))
     if (verbose) { cat(paste0("Clustering analyses for ", filename,"\n"))}
-
-    filename_short <- gsub("[:.:].*","", filename) # remove file extensions, e.g. ".fasta", ".txt"
 
     # find the threshold range for OTU to find the major clusters (number=copy_number) for each subset
     for (m in seq(0.3,1, by = 0.1)) {
@@ -55,30 +56,31 @@ copy_detect<-function(filename,copy_number, verbose=1)
     }
 
     # try different threshold values in the range found above
-    for (i in seq(m-0.09,m, by = 0.01)) {
-      Subset_OTU <- kmer::otu(Sub_set, k = 5, threshold = i, method = "central", nstart = 20)
-      if (verbose) { cat(paste0("threshold = ",i),"\n")}
-      if (verbose) { cat(unique(Subset_OTU),"\n")}
-      if (length(unique(Subset_OTU))>=copy_number) {break}
+    if (length(unique(Subset_OTU))>copy_number) {                
+      for (j in seq(m-0.09,m, by = 0.01)) {                            
+        Subset_OTU <- kmer::otu(Sub_set, k = 5, threshold = j, method = "central", nstart = 20)
+        if (verbose) {cat(paste0("threshold = ",j),"\n")}
+        if (verbose) {cat( unique(Subset_OTU),"\n")}
+        if (length(unique(Subset_OTU))>=copy_number) {break}
+      }
     }
-
+    
     reads_each_cluster <- sapply(unique(Subset_OTU), function(x) length(which(Subset_OTU==x)))
+    cluster_DF <- cbind(as.data.frame(unique(Subset_OTU)), as.data.frame(reads_each_cluster))[order(-reads_each_cluster),]
+    names(cluster_DF) <- c("cluster_num","cluster_total")
+    
+    if (verbose) {cat("Number of reads in each cluster\n")}
+    if (verbose) {cat(reads_each_cluster,"\n")}
 
-    if (verbose) { cat(paste0("Best threshold found = ",i),"\n")}
-    if (verbose) { cat(unique(Subset_OTU),"\n")}
-    if (verbose) { cat("Number of reads in each cluster\n")}
-    if (verbose) { cat(reads_each_cluster,"\n")}
-
-    for (j in (1:copy_number)) {
-      Picked_cluster <- Sub_set[which(Subset_OTU==unique(Subset_OTU)[which(reads_each_cluster==sort(reads_each_cluster)[length(unique(Subset_OTU))-j+1])])]
-      seqinr::write.fasta(sequences = Picked_cluster,
-                names = labels(Picked_cluster),
-                file.out = paste0(filename_short,"_cluster_",j,".fasta"))
-      if (verbose) { cat(paste0("Number of reads in picked cluster ",j, " = ", length(Picked_cluster),"\n"))}
-
+    for  (l in (1:length(cluster_DF$cluster_num))){
+      Picked_cluster <- Sub_set[which(Subset_OTU==cluster_DF$cluster_num[l])]
+      
+      if (verbose) {cat(paste0("Number of reads in picked cluster ",l, " = ", length(Picked_cluster),"\n"))}
+      
     # calcuate the consensus sequence for the clusters of the subset
-    seqinr::write.fasta(sequences = as.character(DECIPHER::ConsensusSequence(Biostrings::readDNAStringSet(paste0(filename_short,"_cluster_",j,".fasta"),format="fasta",nrec=-1L, skip=0L),threshold = 0.4,
-    ambiguity = TRUE, noConsensusChar = "N")[1]),names = paste0(filename_short,"_cluster_",j,"_consensus"), file.out = paste0(filename_short,"_cluster_",j,"_consensus.fasta"))
+      seqinr::write.fasta(sequences = Picked_cluster, names = labels(Picked_cluster), file.out = paste0(filename_short,"_cluster_",l,".fasta"))
+      seqinr::write.fasta(sequences = as.character(DECIPHER::ConsensusSequence(Biostrings::readDNAStringSet(paste0(filename_short,"_cluster_",l,".fasta"),format="fasta",nrec=-1L, skip=0L),threshold = 0.4,
+      ambiguity = TRUE, noConsensusChar = "N")[1]),names = paste0(filename_short,"_cluster_",l,"_consensus"), file.out = paste0(filename_short,"_cluster_",l,"_consensus.fasta"))
     }
 
     # put together all the consensus sequences into one file

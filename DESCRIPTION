@@ -1,7 +1,7 @@
 Package: copyseparator
 Type: Package
 Title: Assembling Long Gene Copies from Short Read Data
-Version: 1.0.0
+Version: 1.1.0
 Author: Lei Yang
 Maintainer: Lei Yang <leiyangslu@gmail.com>
 Description: Assembles two or more gene copies from short-read Next-Generation Sequencing data. Works best when there are only two gene copies and read length >=250 base pairs. High and relatively even coverage are important.
@@ -16,6 +16,6 @@ RoxygenNote: 7.1.2
 Suggests: knitr, rmarkdown, testthat (>= 3.0.0)
 VignetteBuilder: knitr
 NeedsCompilation: no
-Packaged: 2022-05-21 00:55:18 UTC; lyang1
+Packaged: 2022-07-06 12:45:31 UTC; lyang1
 Repository: CRAN
-Date/Publication: 2022-05-24 09:30:04 UTC
+Date/Publication: 2022-07-06 13:10:02 UTC

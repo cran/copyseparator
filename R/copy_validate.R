@@ -30,7 +30,7 @@
 
 copy_validate<-function(filename,copy_number,read_length, verbose=1)
 {
-  sink("log.txt", append=FALSE, split=TRUE) # begin to record log
+  sink("copy_validate_log.txt", append=FALSE, split=TRUE) # begin to record log
   error_log_function <- function() {
     cat(geterrmessage(), file="Error_log.txt", append=T) # begin to record error log
   }
