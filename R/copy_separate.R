@@ -125,7 +125,7 @@ for (i in 1:length(Subsets)) {
 
    seqinr::write.fasta(sequences = Picked_cluster, names = labels(Picked_cluster), file.out = paste0("Subset_",i,"_cluster_",l,".fasta"))
    seqinr::write.fasta(sequences = paste0(c(as.character(rep("-",(read_length-overlap)*(i-1))),as.character(DECIPHER::ConsensusSequence(Biostrings::readDNAStringSet(paste0("Subset_",i,"_cluster_",l,".fasta"),
-                       format="fasta",nrec=-1L, skip=0L),threshold = 0.4, ambiguity = TRUE, minInformation=0.8, noConsensusChar = "N")[1])), collapse=''),
+                       format="fasta",nrec=-1L, skip=0L),threshold = 0.4, ambiguity = TRUE, minInformation=0.6, noConsensusChar = "N")[1])), collapse=''),
                        names = paste0("Subset_",i,"_cluster_",l,"_consensus"), file.out = paste0("Subset_",i,"_cluster_",l,"_consensus.fasta"))
  }
 }
